@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistema de Inscripciones</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<header>
+    <img src="{{ url_for('static', filename='img/logo.png') }}" class="logo">
+    <div>
+        <h1>Centro Profesional Misericordia</h1>
+        <p>Sistema de Inscripciones Institucionales</p>
+    </div>
+</header>
+
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+<footer>
+    <p>© Centro Profesional Misericordia – Corrientes</p>
+</footer>
+
+</body>
+</html>

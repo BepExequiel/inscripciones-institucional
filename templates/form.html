@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Nueva inscripción</h2>
+
+<form method="post" class="form">
+    <input type="text" name="nombre" placeholder="Nombre" required>
+    <input type="text" name="apellido" placeholder="Apellido" required>
+    <input type="text" name="curso" placeholder="Curso o taller" required>
+    <input type="text" name="turno" placeholder="Turno" required>
+
+    <button>Guardar inscripción</button>
+</form>
+
+{% endblock %}

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Inscripción de alumno</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <h2>Inscripción de alumno</h2>
+
+    <form method="post">
+        <input type="text" name="nombre" placeholder="Nombre" required>
+        <input type="text" name="apellido" placeholder="Apellido" required>
+        <input type="text" name="dni" placeholder="DNI" required>
+        <input type="text" name="fecha_nacimiento" placeholder="Fecha de nacimiento (DD/MM/AAAA)">
+        <input type="text" name="telefono" placeholder="Teléfono">
+        <input type="text" name="direccion" placeholder="Dirección">
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="text" name="contacto" placeholder="Contacto de emergencia" required>
+
+        <select name="perfil" required>
+            <option value="">Seleccionar perfil</option>
+            {% for p in perfiles %}
+                <option value="{{ p }}">{{ p }}</option>
+            {% endfor %}
+        </select>
+
+        <button type="submit">Guardar inscripción</button>
+    </form>
+
+    <p>
+        <a href="{{ url_for('dashboard') }}">⬅ Volver al panel</a>
+    </p>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="alert">
+                {% for m in messages %}
+                    <p>{{ m }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+</div>
+
+</body>
+</html>

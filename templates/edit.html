@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Editar inscripción</h2>
+
+<form method="post" class="form">
+    <input type="text" name="nombre" value="{{ inscripcion[1] }}">
+    <input type="text" name="apellido" value="{{ inscripcion[2] }}">
+    <input type="text" name="curso" value="{{ inscripcion[3] }}">
+    <input type="text" name="turno" value="{{ inscripcion[4] }}">
+
+    <button>Actualizar datos</button>
+</form>
+
+{% endblock %}

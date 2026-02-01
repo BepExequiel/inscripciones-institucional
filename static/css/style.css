@@ -1,0 +1,74 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f2f4f3;
+}
+
+header {
+    background: #0a7a3b;
+    color: white;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    height: 80px;
+    margin-right: 20px;
+}
+
+main {
+    padding: 25px;
+}
+
+.filters {
+    margin-bottom: 20px;
+}
+
+input, select, button {
+    padding: 8px;
+    margin-right: 5px;
+}
+
+button {
+    background: #0a7a3b;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+a.btn {
+    background: #0a7a3b;
+    color: white;
+    padding: 8px 12px;
+    text-decoration: none;
+}
+
+table {
+    width: 100%;
+    background: white;
+    border-collapse: collapse;
+}
+
+th {
+    background: #0a7a3b;
+    color: white;
+}
+
+td, th {
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+.form input {
+    display: block;
+    margin-bottom: 10px;
+    width: 300px;
+}
+
+footer {
+    background: #e6e6e6;
+    text-align: center;
+    padding: 10px;
+    margin-top: 40px;
+}
