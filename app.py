@@ -6,7 +6,7 @@ app = Flask(__name__)
 def get_db():
     return sqlite3.connect("database.db")
 
-@app.route("/")
+@app.route("/", methods=["GET", "POST"])
 def index():
     search = request.args.get("search", "")
     curso = request.args.get("curso", "")
@@ -94,3 +94,4 @@ def edit(id):
 
 if __name__ == "__main__":
     app.run(debug=True)
+
