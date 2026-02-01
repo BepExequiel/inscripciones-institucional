@@ -1,12 +1,39 @@
 from flask import Flask, render_template, request, redirect, url_for
 import sqlite3
+import os
 
 app = Flask(__name__)
 
-def get_db():
-    return sqlite3.connect("database.db")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, "app3_0.db")
 
-@app.route("/", methods=["GET", "POST"])
+def get_db():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
+def init_db():
+    conn = get_db()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS inscripciones (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nombre TEXT NOT NULL,
+        apellido TEXT NOT NULL,
+        dni TEXT,
+        email TEXT,
+        telefono TEXT,
+        curso TEXT NOT NULL,
+        turno TEXT NOT NULL,
+        perfil TEXT
+    )
+    """)
+
+    conn.commit()
+    conn.close()
+
+init_db()
+@app.route("/")
 def index():
     search = request.args.get("search", "")
     curso = request.args.get("curso", "")
@@ -93,5 +120,4 @@ def edit(id):
     return render_template("edit.html", inscripcion=inscripcion)
 
 if __name__ == "__main__":
-    app.run(debug=True)
-
+    app.run()
