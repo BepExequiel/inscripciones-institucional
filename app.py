@@ -15,6 +15,9 @@ def get_db():
         sslmode="require"
     )
 
+@app.before_first_request
+def crear_tablas():
+    init_db()
 # =========================
 # INICIALIZAR BASE
 # =========================
@@ -158,5 +161,5 @@ def edit(id):
 # START
 # =========================
 if __name__ == "__main__":
-    init_db()
+    
     app.run()
