@@ -47,7 +47,9 @@ def init_db():
     conn.close()
 
 # 👉 SE EJECUTA AL ARRANCAR (Flask 3 compatible)
-init_db()
+@app.before_request
+def before_request():
+    init_db()
 
 # =========================
 # LISTADO + FILTROS
@@ -167,4 +169,4 @@ def edit(id):
 # START
 # =========================
 if __name__ == "__main__":
-    app.run()
+     app.run(host="0.0.0.0", port=5000)
