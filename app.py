@@ -2,12 +2,14 @@ from flask import Flask, render_template, request, redirect, url_for
 import psycopg2
 import os
 from psycopg2.extras import RealDictCursor
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "clave-local")
 #SECRET_KEY = inscripciones_institucional_2026_render_segura
 
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 # =========================
 # CONEXIÓN A POSTGRESQL
