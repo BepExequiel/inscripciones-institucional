@@ -3,7 +3,11 @@ import psycopg2
 import os
 from psycopg2.extras import RealDictCursor
 
+
 app = Flask(__name__)
+app.secret_key = os.environ.get("SECRET_KEY", "clave-local")
+#SECRET_KEY = inscripciones_institucional_2026_render_segura
+
 
 # =========================
 # CONEXIÓN A POSTGRESQL
@@ -46,7 +50,7 @@ init_db()
 # =========================
 # LISTADO + FILTROS
 # =========================
-@app.route("/")
+@app.route("/", methods=["GET", "HEAD"])
 def index():
     search = request.args.get("search", "")
     curso = request.args.get("curso", "")
