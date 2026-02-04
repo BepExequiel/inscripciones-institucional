@@ -15,9 +15,6 @@ def get_db():
         sslmode="require"
     )
 
-@app.before_first_request
-def crear_tablas():
-    init_db()
 # =========================
 # INICIALIZAR BASE
 # =========================
@@ -42,6 +39,9 @@ def init_db():
     conn.commit()
     cur.close()
     conn.close()
+
+# 👉 SE EJECUTA AL ARRANCAR (Flask 3 compatible)
+init_db()
 
 # =========================
 # LISTADO + FILTROS
@@ -161,5 +161,4 @@ def edit(id):
 # START
 # =========================
 if __name__ == "__main__":
-    
     app.run()
