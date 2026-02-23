@@ -3,13 +3,32 @@
 
 <h2>Editar inscripción</h2>
 
-<form method="post" class="form">
-    <input type="text" name="nombre" value="{{ inscripcion[1] }}">
-    <input type="text" name="apellido" value="{{ inscripcion[2] }}">
-    <input type="text" name="curso" value="{{ inscripcion[3] }}">
-    <input type="text" name="turno" value="{{ inscripcion[4] }}">
+<form method="post">
 
-    <button>Actualizar datos</button>
+  <input type="text" name="nombre" value="{{ registro['nombre'] }}" required>
+  <input type="text" name="apellido" value="{{ registro['apellido'] }}" required>
+
+  <input type="text" name="dni" value="{{ registro['dni'] }}" required>
+
+  <input type="email" name="email" value="{{ registro['email'] }}" required>
+
+  <input type="text" name="telefono" value="{{ registro['telefono'] }}" required>
+
+  <input type="text" name="curso" value="{{ registro['curso'] }}" required>
+
+  <select name="turno" required>
+    <option value="Mañana" {% if registro['turno'] == 'Mañana' %}selected{% endif %}>Mañana</option>
+    <option value="Tarde" {% if registro['turno'] == 'Tarde' %}selected{% endif %}>Tarde</option>
+    <option value="Noche" {% if registro['turno'] == 'Noche' %}selected{% endif %}>Noche</option>
+  </select>
+
+  <select name="perfil" required>
+    <option value="Estudiante" {% if registro['perfil'] == 'Estudiante' %}selected{% endif %}>Estudiante</option>
+    <option value="Docente" {% if registro['perfil'] == 'Docente' %}selected{% endif %}>Docente</option>
+    <option value="Aspirante" {% if registro['perfil'] == 'Aspirante' %}selected{% endif %}>Aspirante</option>
+  </select>
+
+  <button type="submit">Guardar cambios</button>
 </form>
 
 {% endblock %}

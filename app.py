@@ -1,24 +1,21 @@
 from flask import Flask, render_template, request, redirect, url_for
 import psycopg2
-import os
 from psycopg2.extras import RealDictCursor
-from werkzeug.middleware.proxy_fix import ProxyFix
-
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "clave-local")
-#SECRET_KEY = inscripciones_institucional_2026_render_segura
-
-app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+app.secret_key = "clave-local"
 
 # =========================
-# CONEXIÓN A POSTGRESQL
+# CONEXIÓN POSTGRES LOCAL
 # =========================
 def get_db():
     return psycopg2.connect(
-        os.environ.get("DATABASE_URL"),
-        cursor_factory=RealDictCursor,
-        sslmode="require"
+        host="localhost",
+        port=5432,
+        database="inscripciones_local",
+        user="inscripciones_user",
+        password="inscripciones123",
+        cursor_factory=RealDictCursor
     )
 
 # =========================
@@ -46,34 +43,18 @@ def init_db():
     cur.close()
     conn.close()
 
-# 👉 SE EJECUTA AL ARRANCAR (Flask 3 compatible)
-@app.before_request
-def before_request():
-    init_db()
+# Ejecutar una sola vez al iniciar
+init_db()
 
 # =========================
-# LISTADO + FILTROS
+# LISTADO
 # =========================
-@app.route("/", methods=["GET", "HEAD"])
+@app.route("/")
 def index():
-    search = request.args.get("search", "")
-    curso = request.args.get("curso", "")
-
     conn = get_db()
     cur = conn.cursor()
 
-    query = "SELECT * FROM inscripciones WHERE 1=1"
-    params = []
-
-    if search:
-        query += " AND (nombre ILIKE %s OR apellido ILIKE %s)"
-        params.extend([f"%{search}%", f"%{search}%"])
-
-    if curso:
-        query += " AND curso = %s"
-        params.append(curso)
-
-    cur.execute(query, params)
+    cur.execute("SELECT * FROM inscripciones ORDER BY id DESC")
     inscripciones = cur.fetchall()
 
     cur.execute("SELECT DISTINCT curso FROM inscripciones")
@@ -89,19 +70,21 @@ def index():
     )
 
 # =========================
-# AGREGAR REGISTRO
+# AGREGAR
 # =========================
 @app.route("/add", methods=["GET", "POST"])
 def add():
     if request.method == "POST":
-        nombre = request.form["nombre"]
-        apellido = request.form["apellido"]
-        dni = request.form["dni"]
-        email = request.form["email"]
-        telefono = request.form["telefono"]
-        curso = request.form["curso"]
-        turno = request.form["turno"]
-        perfil = request.form["perfil"]
+        data = (
+            request.form["nombre"],
+            request.form["apellido"],
+            request.form["dni"],
+            request.form["email"],
+            request.form["telefono"],
+            request.form["curso"],
+            request.form["turno"],
+            request.form["perfil"]
+        )
 
         conn = get_db()
         cur = conn.cursor()
@@ -109,11 +92,8 @@ def add():
         cur.execute("""
             INSERT INTO inscripciones
             (nombre, apellido, dni, email, telefono, curso, turno, perfil)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-        """, (
-            nombre, apellido, dni, email,
-            telefono, curso, turno, perfil
-        ))
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+        """, data)
 
         conn.commit()
         cur.close()
@@ -124,7 +104,7 @@ def add():
     return render_template("form.html")
 
 # =========================
-# EDITAR REGISTRO
+# EDITAR
 # =========================
 @app.route("/edit/<int:id>", methods=["GET", "POST"])
 def edit(id):
@@ -132,24 +112,24 @@ def edit(id):
     cur = conn.cursor()
 
     if request.method == "POST":
-        nombre = request.form["nombre"]
-        apellido = request.form["apellido"]
-        dni = request.form["dni"]
-        email = request.form["email"]
-        telefono = request.form["telefono"]
-        curso = request.form["curso"]
-        turno = request.form["turno"]
-        perfil = request.form["perfil"]
+        data = (
+            request.form["nombre"],
+            request.form["apellido"],
+            request.form["dni"],
+            request.form["email"],
+            request.form["telefono"],
+            request.form["curso"],
+            request.form["turno"],
+            request.form["perfil"],
+            id
+        )
 
         cur.execute("""
             UPDATE inscripciones
             SET nombre=%s, apellido=%s, dni=%s, email=%s,
                 telefono=%s, curso=%s, turno=%s, perfil=%s
             WHERE id=%s
-        """, (
-            nombre, apellido, dni, email,
-            telefono, curso, turno, perfil, id
-        ))
+        """, data)
 
         conn.commit()
         cur.close()
@@ -169,4 +149,4 @@ def edit(id):
 # START
 # =========================
 if __name__ == "__main__":
-     app.run(host="0.0.0.0", port=5000)
+    app.run(debug=True)

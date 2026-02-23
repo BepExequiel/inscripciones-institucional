@@ -3,13 +3,34 @@
 
 <h2>Nueva inscripción</h2>
 
-<form method="post" class="form">
-    <input type="text" name="nombre" placeholder="Nombre" required>
-    <input type="text" name="apellido" placeholder="Apellido" required>
-    <input type="text" name="curso" placeholder="Curso o taller" required>
-    <input type="text" name="turno" placeholder="Turno" required>
+<form method="post">
 
-    <button>Guardar inscripción</button>
+  <input type="text" name="nombre" placeholder="Nombre" required>
+  <input type="text" name="apellido" placeholder="Apellido" required>
+
+  <input type="text" name="dni" placeholder="DNI" required>
+
+  <input type="email" name="email" placeholder="Email" required>
+
+  <input type="text" name="telefono" placeholder="Teléfono" required>
+
+  <input type="text" name="curso" placeholder="Curso" required>
+
+  <select name="turno" required>
+    <option value="">Seleccione turno</option>
+    <option value="Mañana">Mañana</option>
+    <option value="Tarde">Tarde</option>
+    <option value="Noche">Noche</option>
+  </select>
+
+  <select name="perfil" required>
+    <option value="">Seleccione perfil</option>
+    <option value="Estudiante">Estudiante</option>
+    <option value="Docente">Docente</option>
+    <option value="Aspirante">Aspirante</option>
+  </select>
+
+  <button type="submit">Guardar inscripción</button>
 </form>
 
 {% endblock %}

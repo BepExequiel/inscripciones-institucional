@@ -7,7 +7,7 @@
     <select name="curso">
         <option value="">Todos los cursos</option>
         {% for c in cursos %}
-            <option value="{{ c[0] }}">{{ c[0] }}</option>
+            <option value="{{ c['curso'] }}">{{ c['curso'] }}</option>
         {% endfor %}
     </select>
 
@@ -16,25 +16,37 @@
 </form>
 
 <table>
-    <tr>
-        <th>Nombre</th>
-        <th>Apellido</th>
-        <th>Curso / Taller</th>
-        <th>Turno</th>
-        <th>Acciones</th>
-    </tr>
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>DNI</th>
+            <th>Email</th>
+            <th>Teléfono</th>
+            <th>Curso / Taller</th>
+            <th>Turno</th>
+            <th>Perfil</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
 
+    <tbody>
     {% for i in inscripciones %}
-    <tr>
-        <td>{{ i[1] }}</td>
-        <td>{{ i[2] }}</td>
-        <td>{{ i[3] }}</td>
-        <td>{{ i[4] }}</td>
-        <td>
-            <a href="/edit/{{ i[0] }}">✏️ Editar</a>
-        </td>
-    </tr>
+        <tr>
+            <td>{{ i.nombre }}</td>
+            <td>{{ i.apellido }}</td>
+            <td>{{ i.dni }}</td>
+            <td>{{ i.email }}</td>
+            <td>{{ i.telefono }}</td>
+            <td>{{ i.curso }}</td>
+            <td>{{ i.turno }}</td>
+            <td>{{ i.perfil }}</td>
+            <td>
+                <a href="{{ url_for('edit', id=i.id) }}">✏️ Editar</a>
+            </td>
+        </tr>
     {% endfor %}
+    </tbody>
 </table>
 
 {% endblock %}
