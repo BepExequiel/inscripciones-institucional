@@ -1,22 +1,36 @@
+import os
 from flask import Flask, render_template, request, redirect, url_for
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
 app = Flask(__name__)
-app.secret_key = "clave-local"
+app.secret_key = os.environ.get("SECRET_KEY", "clave-local")
+
 
 # =========================
-# CONEXIÓN POSTGRES LOCAL
+# CONEXIÓN A BASE DE DATOS
 # =========================
 def get_db():
-    return psycopg2.connect(
-        host="localhost",
-        port=5432,
-        database="inscripciones_local",
-        user="inscripciones_user",
-        password="inscripciones123",
-        cursor_factory=RealDictCursor
-    )
+    database_url = os.environ.get("DATABASE_URL")
+
+    if database_url:
+        # Render (producción)
+        return psycopg2.connect(
+            database_url,
+            sslmode="require",
+            cursor_factory=RealDictCursor
+        )
+    else:
+        # Local
+        return psycopg2.connect(
+            host="localhost",
+            port=5432,
+            database="inscripciones_local",
+            user="inscripciones_user",
+            password="inscripciones123",
+            cursor_factory=RealDictCursor
+        )
+
 
 # =========================
 # INICIALIZAR BASE
@@ -43,8 +57,6 @@ def init_db():
     cur.close()
     conn.close()
 
-# Ejecutar una sola vez al iniciar
-init_db()
 
 # =========================
 # LISTADO
@@ -68,6 +80,7 @@ def index():
         inscripciones=inscripciones,
         cursos=cursos
     )
+
 
 # =========================
 # AGREGAR
@@ -102,6 +115,7 @@ def add():
         return redirect(url_for("index"))
 
     return render_template("form.html")
+
 
 # =========================
 # EDITAR
@@ -145,8 +159,10 @@ def edit(id):
 
     return render_template("edit.html", registro=registro)
 
+
 # =========================
-# START
+# SOLO PARA DESARROLLO LOCAL
 # =========================
 if __name__ == "__main__":
+    init_db()  # Solo se ejecuta localmente
     app.run(debug=True)
