@@ -1,27 +1,27 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, send_file
 import psycopg2
 from psycopg2.extras import RealDictCursor
+import pandas as pd
+import io
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "clave-local")
 
 
 # =========================
-# CONEXIÓN A BASE DE DATOS
+# CONEXIÓN
 # =========================
 def get_db():
     database_url = os.environ.get("DATABASE_URL")
 
     if database_url:
-        # Render (producción)
         return psycopg2.connect(
             database_url,
             sslmode="require",
             cursor_factory=RealDictCursor
         )
     else:
-        # Local
         return psycopg2.connect(
             host="localhost",
             port=5432,
@@ -33,44 +33,34 @@ def get_db():
 
 
 # =========================
-# INICIALIZAR BASE
-# =========================
-def init_db():
-    conn = get_db()
-    cur = conn.cursor()
-
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS inscripciones (
-            id SERIAL PRIMARY KEY,
-            nombre TEXT NOT NULL,
-            apellido TEXT NOT NULL,
-            dni TEXT,
-            email TEXT,
-            telefono TEXT,
-            curso TEXT NOT NULL,
-            turno TEXT NOT NULL,
-            perfil TEXT
-        )
-    """)
-
-    conn.commit()
-    cur.close()
-    conn.close()
-
-
-# =========================
-# LISTADO
+# LISTADO + FILTROS
 # =========================
 @app.route("/")
 def index():
+    buscar = request.args.get("buscar", "")
+    perfil_filtro = request.args.get("perfil", "")
+
     conn = get_db()
     cur = conn.cursor()
 
-    cur.execute("SELECT * FROM inscripciones ORDER BY id DESC")
+    query = "SELECT * FROM inscripciones WHERE 1=1"
+    params = []
+
+    if buscar:
+        query += " AND (LOWER(nombre) LIKE LOWER(%s) OR LOWER(apellido) LIKE LOWER(%s))"
+        params.extend([f"%{buscar}%", f"%{buscar}%"])
+
+    if perfil_filtro:
+        query += " AND perfil=%s"
+        params.append(perfil_filtro)
+
+    query += " ORDER BY id DESC"
+
+    cur.execute(query, params)
     inscripciones = cur.fetchall()
 
-    cur.execute("SELECT DISTINCT curso FROM inscripciones")
-    cursos = cur.fetchall()
+    cur.execute("SELECT DISTINCT perfil FROM inscripciones ORDER BY perfil")
+    perfiles = cur.fetchall()
 
     cur.close()
     conn.close()
@@ -78,7 +68,9 @@ def index():
     return render_template(
         "index.html",
         inscripciones=inscripciones,
-        cursos=cursos
+        perfiles=perfiles,
+        buscar=buscar,
+        perfil_filtro=perfil_filtro
     )
 
 
@@ -94,9 +86,8 @@ def add():
             request.form["dni"],
             request.form["email"],
             request.form["telefono"],
-            request.form["curso"],
-            request.form["turno"],
-            request.form["perfil"]
+            request.form["perfil"],
+            request.form["turno"]
         )
 
         conn = get_db()
@@ -104,8 +95,8 @@ def add():
 
         cur.execute("""
             INSERT INTO inscripciones
-            (nombre, apellido, dni, email, telefono, curso, turno, perfil)
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+            (nombre, apellido, dni, email, telefono, perfil, turno)
+            VALUES (%s,%s,%s,%s,%s,%s,%s)
         """, data)
 
         conn.commit()
@@ -132,16 +123,15 @@ def edit(id):
             request.form["dni"],
             request.form["email"],
             request.form["telefono"],
-            request.form["curso"],
-            request.form["turno"],
             request.form["perfil"],
+            request.form["turno"],
             id
         )
 
         cur.execute("""
             UPDATE inscripciones
             SET nombre=%s, apellido=%s, dni=%s, email=%s,
-                telefono=%s, curso=%s, turno=%s, perfil=%s
+                telefono=%s, perfil=%s, turno=%s
             WHERE id=%s
         """, data)
 
@@ -161,8 +151,41 @@ def edit(id):
 
 
 # =========================
-# SOLO PARA DESARROLLO LOCAL
+# ELIMINAR
 # =========================
+@app.route("/delete/<int:id>")
+def delete(id):
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("DELETE FROM inscripciones WHERE id=%s", (id,))
+    conn.commit()
+
+    cur.close()
+    conn.close()
+
+    return redirect(url_for("index"))
+
+
+# =========================
+# EXPORTAR A EXCEL
+# =========================
+@app.route("/export")
+def export():
+    conn = get_db()
+    df = pd.read_sql("SELECT * FROM inscripciones ORDER BY id DESC", conn)
+    conn.close()
+
+    output = io.BytesIO()
+    df.to_excel(output, index=False)
+    output.seek(0)
+
+    return send_file(
+        output,
+        download_name="inscripciones.xlsx",
+        as_attachment=True
+    )
+
+
 if __name__ == "__main__":
-    init_db()  # Solo se ejecuta localmente
     app.run(debug=True)

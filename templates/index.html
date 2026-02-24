@@ -1,52 +1,73 @@
-{% extends "base.html" %}
-{% block content %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Inscripciones</title>
+    <script>
+        function confirmarEliminar(id) {
+            if (confirm("¿Seguro que querés eliminar este registro?")) {
+                window.location.href = "/delete/" + id;
+            }
+        }
 
-<form method="get" class="filters">
-    <input type="text" name="search" placeholder="Buscar por nombre o apellido">
+        function buscarEnTiempoReal() {
+            const buscar = document.getElementById("buscar").value;
+            const perfil = document.getElementById("perfil").value;
+            window.location.href = `/?buscar=${buscar}&perfil=${perfil}`;
+        }
+    </script>
+</head>
+<body>
 
-    <select name="curso">
-        <option value="">Todos los cursos</option>
-        {% for c in cursos %}
-            <option value="{{ c['curso'] }}">{{ c['curso'] }}</option>
-        {% endfor %}
-    </select>
+<h2>Inscripciones</h2>
 
-    <button type="submit">Buscar</button>
-    <a href="/add" class="btn">➕ Nueva inscripción</a>
-</form>
+<input type="text" id="buscar" placeholder="Buscar..."
+       value="{{ buscar }}" onkeyup="buscarEnTiempoReal()">
 
-<table>
-    <thead>
-        <tr>
-            <th>Nombre</th>
-            <th>Apellido</th>
-            <th>DNI</th>
-            <th>Email</th>
-            <th>Teléfono</th>
-            <th>Curso / Taller</th>
-            <th>Turno</th>
-            <th>Perfil</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-
-    <tbody>
-    {% for i in inscripciones %}
-        <tr>
-            <td>{{ i.nombre }}</td>
-            <td>{{ i.apellido }}</td>
-            <td>{{ i.dni }}</td>
-            <td>{{ i.email }}</td>
-            <td>{{ i.telefono }}</td>
-            <td>{{ i.curso }}</td>
-            <td>{{ i.turno }}</td>
-            <td>{{ i.perfil }}</td>
-            <td>
-                <a href="{{ url_for('edit', id=i.id) }}">✏️ Editar</a>
-            </td>
-        </tr>
+<select id="perfil" onchange="buscarEnTiempoReal()">
+    <option value="">Todos los perfiles</option>
+    {% for p in perfiles %}
+        <option value="{{ p.perfil }}"
+            {% if perfil_filtro == p.perfil %}selected{% endif %}>
+            {{ p.perfil }}
+        </option>
     {% endfor %}
-    </tbody>
+</select>
+
+<a href="/add">Nueva inscripción</a>
+<a href="/export">Exportar Excel</a>
+
+<br><br>
+
+<table border="1" cellpadding="5">
+    <tr>
+        <th>Nombre</th>
+        <th>Apellido</th>
+        <th>DNI</th>
+        <th>Email</th>
+        <th>Teléfono</th>
+        <th>Perfil</th>
+        <th>Turno</th>
+        <th>Acciones</th>
+    </tr>
+
+    {% for row in inscripciones %}
+    <tr>
+        <td>{{ row.nombre }}</td>
+        <td>{{ row.apellido }}</td>
+        <td>{{ row.dni }}</td>
+        <td>{{ row.email }}</td>
+        <td>{{ row.telefono }}</td>
+        <td>{{ row.perfil }}</td>
+        <td>{{ row.turno }}</td>
+        <td>
+            <a href="/edit/{{ row.id }}">Editar</a>
+            <button onclick="confirmarEliminar({{ row.id }})">
+                Eliminar
+            </button>
+        </td>
+    </tr>
+    {% endfor %}
 </table>
 
-{% endblock %}
+</body>
+</html>
